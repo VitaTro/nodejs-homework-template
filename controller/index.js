@@ -41,6 +41,7 @@ const getById = async (req, res, next) => {
     next(error);
   }
 };
+
 const create = async (req, res, next) => {
   const { title, text } = req.body;
   try {
@@ -57,6 +58,7 @@ const create = async (req, res, next) => {
     next(error);
   }
 };
+
 const update = async (req, res, next) => {
   const { id } = req.params;
   const { title, text } = req.body;
@@ -83,11 +85,12 @@ const update = async (req, res, next) => {
     next(error);
   }
 };
-const updateStatus = async (req, res, next) => {
-  const { id } = req.params;
-  const { isDone = false } = req.body;
+
+const favorite = async (req, res, next) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
   try {
-    const result = await service.updateContact(id, { isDone });
+    const result = await service.favorite(contactId, favorite);
     if (result) {
       res.json({
         status: "success",
@@ -100,7 +103,7 @@ const updateStatus = async (req, res, next) => {
       res.status(404).json({
         status: "error",
         code: 404,
-        message: `Not found contact id: ${id}`,
+        message: `Not found contact id: ${contactId}`,
         data: "Not found",
       });
     }
@@ -109,6 +112,7 @@ const updateStatus = async (req, res, next) => {
     next(error);
   }
 };
+
 const remove = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -140,6 +144,6 @@ module.exports = {
   getById,
   create,
   update,
-  updateStatus,
+  favorite,
   remove,
 };
