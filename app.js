@@ -1,8 +1,9 @@
-const express = require("express");
-const logger = require("morgan");
-const cors = require("cors");
-
-const router = require("./api/index");
+import cors from "cors";
+import express from "express";
+import logger from "morgan";
+import routerUsers from "./api/router-auth";
+import routerContacts from "./api/router-contacts";
+import { JWTStrategy } from "./config/config-passport";
 
 const app = express();
 
@@ -12,7 +13,7 @@ app.use(cors());
 
 app.use(logger(formatsLogger));
 
-app.use("/api/index", router);
+app.use("/api/index", routerContacts);
 
 app.use((_, res, __) => {
   res.status(404).json({
@@ -32,4 +33,14 @@ app.use((err, _, res, __) => {
     data: "Internal Server Error",
   });
 });
-module.exports = app;
+
+JWTStrategy();
+
+app.use("/users", routerUsers);
+app.use((req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
+app.use((err, req, res, next) => {
+  res.status(500).json({ message: err.message });
+});
+export default app;
