@@ -4,7 +4,7 @@ const User = require("../schemas/users");
 require("dotenv").config();
 const secret = process.env.SECRET;
 
-const ExtractJWT = passportJWT.ExtractJwt;
+export const ExtractJWT = passportJWT.ExtractJwt;
 const Strategy = passportJWT.Strategy;
 const params = {
   secretOrKey: secret,

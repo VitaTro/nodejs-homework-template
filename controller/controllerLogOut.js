@@ -1,13 +1,13 @@
-import { ListUser } from "../schemas/listUserSchema";
+import { User } from "../schemas/users";
 
 export const logOut = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const accessToken = authHeader.split(" ")[1];
-    const newListUser = new ListUser({
+    const accessToken = req.headers.authorization.split(" ")[1];
+
+    const newUser = new User({
       token: accessToken,
     });
-    await newListUser.save();
+    await newUser.save();
     res.status(200).json({
       message: "You are logged out!",
     });

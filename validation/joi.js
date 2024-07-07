@@ -8,7 +8,7 @@ const schema = Joi.object({
 
 // перевірка валідації даних, які прийшли з HTTP-запиту
 // якщо не відповідає дійсності, то помилка, а якщо так, то йдемо далі
-export const ValidateSchema = (req, res, next) => {
+export const validateAuthSchema = (req, res, next) => {
   const result = schema.validate(req.body);
   if (result.error) {
     res.status(400).json({ message: result.error.message });
