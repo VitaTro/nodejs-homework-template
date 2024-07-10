@@ -91,9 +91,10 @@ const current = async (req, res, next) => {
 // ВИЛОГОВУВАННЯ
 const logOut = async (req, res) => {
   try {
-    const accessToken = req.user.token;
+    // замість токена вкидаю id, щоб коли користувач вийшов з аппки, то мусив по новій логіниться
+    const userId = req.user.id;
     const newUser = new User({
-      token: accessToken,
+      token: userId,
     });
     await newUser.save();
     res.status(200).json({
