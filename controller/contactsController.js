@@ -1,7 +1,8 @@
 const contactsService = require("../services/contactsService");
-const JoiSchema = require("../schemas/contactsSchema");
+const JoiSchema = require("../validate/contactsJoi");
 
 const get = async (req, res, next) => {
+  console.log(req.user);
   try {
     const contacts = await contactsService.listContacts();
     res.json({

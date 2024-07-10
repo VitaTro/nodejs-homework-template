@@ -5,7 +5,7 @@ const listContacts = async () => await Contacts.find();
 const getContactById = async (id) => {
   try {
     return Contacts.findOne({ _id: id });
-  } catch (err) {
+  } catch (error) {
     return false;
   }
 };
@@ -16,7 +16,7 @@ const addContact = ({ name, email, phone, favorite }) =>
 const removeContact = (id) => {
   try {
     return Contacts.findByIdAndRemove({ _id: id });
-  } catch (err) {
+  } catch (error) {
     return false;
   }
 };
@@ -24,7 +24,7 @@ const removeContact = (id) => {
 const updateContact = (id, body) => {
   try {
     return Contacts.findByIdAndUpdate({ _id: id }, body, { new: true });
-  } catch (err) {
+  } catch (error) {
     return false;
   }
 };
@@ -32,7 +32,7 @@ const updateContact = (id, body) => {
 const updateStatusContact = (id, body) => {
   try {
     return Contacts.findByIdAndUpdate({ _id: id }, body, { new: true });
-  } catch (err) {
+  } catch (error) {
     return false;
   }
 };
