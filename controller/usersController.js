@@ -92,11 +92,10 @@ const current = async (req, res, next) => {
 const logOut = async (req, res) => {
   try {
     // замість токена вкидаю id, щоб коли користувач вийшов з аппки, то мусив по новій логіниться
+
+    // те,що зверху трохи неправильно. треба було вкинути таку логіку,щоб ноуд вишукував по id юзера,і коли він вилогується, то щоб токен анулювався
     const userId = req.user.id;
-    const newUser = new User({
-      token: userId,
-    });
-    await newUser.save();
+    await User.findByIdAndUpdate(userId, { token: null });
     res.status(200).json({
       message: "You are logged out!",
     });

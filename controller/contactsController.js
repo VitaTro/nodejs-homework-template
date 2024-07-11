@@ -18,8 +18,9 @@ const get = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   try {
+    const { user } = req.user;
     const { id } = req.params;
-    const contact = await contactsService.getContactById(id);
+    const contact = await contactsService.getContactById(id, user);
     if (contact) {
       res.json({
         status: "success",
@@ -57,12 +58,16 @@ const create = async (req, res, next) => {
       });
       return;
     }
-    const contact = await contactsService.addContact({
-      name,
-      email,
-      phone,
-      favorite,
-    });
+    const user = req.user;
+    const contact = await contactsService.addContact(
+      {
+        name,
+        email,
+        phone,
+        favorite,
+      },
+      user
+    );
     res.json({
       status: "success",
       code: 201,
@@ -76,8 +81,9 @@ const create = async (req, res, next) => {
 
 const removeById = async (req, res, next) => {
   try {
+    const user = req.user;
     const { id } = req.params;
-    const isDelete = await contactsService.removeContact(id);
+    const isDelete = await contactsService.removeContact(id, user);
     if (isDelete) {
       res.json({
         status: "contact deleted",
@@ -113,7 +119,8 @@ const update = async (req, res, next) => {
       return;
     }
     const newContact = JSON.parse(JSON.stringify(isValid.value));
-    const contact = await contactsService.updateContact(id, newContact);
+    const user = req.user;
+    const contact = await contactsService.updateContact(id, newContact, user);
     if (contact) {
       res.json({
         status: "success",
@@ -146,9 +153,11 @@ const updateStatus = async (req, res, next) => {
       });
       return;
     }
+    const user = req.user;
     const contact = await contactsService.updateStatusContact(
       id,
-      JSON.parse(JSON.stringify(isValid.value))
+      JSON.parse(JSON.stringify(isValid.value)),
+      user
     );
     if (contact) {
       res.json({
