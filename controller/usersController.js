@@ -57,7 +57,7 @@ const logIn = async (req, res, next) => {
       username: user.username,
     };
     // треба пройти валідацію за 1 годину
-    const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+    const token = jwt.sign(payload, secret, { expiresIn: "1d" });
 
     res.json({
       status: "success",
