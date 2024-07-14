@@ -1,6 +1,9 @@
+const jwt = require("jsonwebtoken");
+const path = require("path");
+const Jimp = require("jimp");
+const fs = require("fs/promises");
 const User = require("../models/usersModel");
 
-const jwt = require("jsonwebtoken");
 const secret = process.env.SECRET;
 
 // РЕЄСТРАЦІЯ
@@ -108,9 +111,52 @@ const logOut = async (req, res) => {
   }
 };
 
+// ОНОВЛЕННЯ АВАТАРУ КОРИСТУВАЧА
+
+// оголошення змінної для збереження шляху до директорії
+const uploadDirname = path.join(process.cwd(), "uploads");
+
+const updateAvatar = async (req, res, next) => {
+  const { userId } = req.user;
+  const { path: tmpUpload, originalname } = req.file;
+
+  try {
+    const newAvatarName = `${userId}_${originalname}`;
+    const resultUpload = path.join(uploadDirname, newAvatarName);
+
+    // зменшення розміру картинки до 250*250
+    const resizeImage = async (inputPath, outputPath) => {
+      try {
+        const image = await Jimp.read(inputPath);
+        await image.resize(250, 250).writeAsync(outputPath);
+        // якщо ок, то буде лінк до аватарки
+        res.status(200).json({
+          avatarURL: `/avatars/${newAvatarName}`,
+        });
+      } catch (error) {
+        console.log(error);
+        next();
+      }
+    };
+
+    await resizeImage(tmpUpload, resultUpload);
+    // // const avatar = await Jimp.read(tmpUpload);
+    // // await avatar.resize(250, 250).writeAsync(resultUpload);
+
+    const avatarURL = `/avatars/${newAvatarName}`;
+    await User.findByIdAndUpdate(userId, { avatarURL });
+
+    res.json({ avatarURL });
+  } catch (error) {
+    await fs.unlink(tmpUpload);
+    next(error);
+  }
+};
+
 module.exports = {
   signUp,
   logIn,
   current,
   logOut,
+  updateAvatar,
 };

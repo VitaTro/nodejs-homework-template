@@ -21,6 +21,10 @@ const users = new Schema({
     required: true,
     ref: "User",
   },
+  avatarURL: {
+    type: String,
+    required: true,
+  },
 });
 
 // "user" - це перший аргумент методу і вказує на назву моделі. В даному випадку модель називається “user”.

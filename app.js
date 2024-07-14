@@ -11,12 +11,16 @@ const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
+// const uploadDir = path.join(process.cwd(), "uploads");
+// const storeImage = path.join(process.cwd(), "images");
+
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
 app.use("/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
+app.use("/avatars", express.static("public/avatars"));
 
 // коли я викликаю next() у функції контрольній, то коли не діють всі мої "якщо", то вивалює один з цих помилок
 app.use((req, res) => {

@@ -1,7 +1,7 @@
 const passport = require("passport");
 
 const authMiddleware = async (req, res, next) => {
-  return passport.authenticate("jwt", { session: "false" }, (error, user) => {
+  return passport.authenticate("jwt", { session: false }, (error, user) => {
     if (!user || error) {
       return res.status(401).json({
         status: "error",
