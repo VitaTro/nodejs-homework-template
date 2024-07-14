@@ -1,8 +1,8 @@
 const path = require("path");
 const multer = require("multer");
 
-// const filename =
-const tmpDirname = path.join(__dirname, "../", "tmp");
+// тимчачова папка
+const tmpDirname = path.join(__dirname, "../tmp");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

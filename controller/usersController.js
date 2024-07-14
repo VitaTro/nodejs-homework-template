@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const Jimp = require("jimp");
 const fs = require("fs/promises");
+const gravatar = require("gravatar");
 const User = require("../models/usersModel");
 
 const secret = process.env.SECRET;
@@ -24,7 +25,10 @@ const signUp = async (req, res, next) => {
   try {
     const newUser = new User({ username, email });
     newUser.setPassword(password);
+    // якщо новий користувач, додаємо йому можливість одразу уставити аватар
+    newUser.avatarURL = gravatar.url(email);
     await newUser.save();
+
     res.status(201).json({
       status: "success",
       code: 201,
@@ -59,8 +63,8 @@ const logIn = async (req, res, next) => {
       id: user.id,
       username: user.username,
     };
-    // треба пройти валідацію за 1 годину
-    const token = jwt.sign(payload, secret, { expiresIn: "1d" });
+
+    const token = jwt.sign(payload, secret);
 
     res.json({
       status: "success",
@@ -114,7 +118,7 @@ const logOut = async (req, res) => {
 // ОНОВЛЕННЯ АВАТАРУ КОРИСТУВАЧА
 
 // оголошення змінної для збереження шляху до директорії
-const uploadDirname = path.join(process.cwd(), "uploads");
+const uploadDirname = path.join(__dirname, "../public/avatars");
 
 const updateAvatar = async (req, res, next) => {
   const { userId } = req.user;
@@ -153,10 +157,39 @@ const updateAvatar = async (req, res, next) => {
   }
 };
 
+const updateSubscription = async (req, res, next) => {
+  try {
+    const { subscription } = req.body;
+    const userId = await User.findByIdAndUpdate(
+      req.user.id,
+      { subscription },
+      { new: true }
+    );
+    if (!userId) {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      status: "sucsess",
+      code: 200,
+      data: {
+        email: userId.email,
+        subscription: userId.subscription,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   signUp,
   logIn,
   current,
   logOut,
   updateAvatar,
+  updateSubscription,
 };
