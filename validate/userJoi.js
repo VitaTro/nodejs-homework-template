@@ -6,6 +6,22 @@ const userJoi = Joi.object({
   email: Joi.string().email({ minDomainSegments: 2 }).required(),
 });
 
+// додавткова валідація для вибору підписки(початковий, професійний, бізнес )
+const subscriptionJoi = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
+});
+
+const userSubscriptionJoi = (req, res, next) => {
+  const { error } = subscriptionJoi.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      status: "error",
+      code: 400,
+      message: error.details[0].message,
+    });
+  }
+  next();
+};
 // перевірка валідації даних, які прийшли з HTTP-запиту
 // якщо не відповідає дійсності, то помилка, а якщо так, то йдемо далі
 const userJoiValidate = (req, res, next) => {
@@ -21,4 +37,5 @@ const userJoiValidate = (req, res, next) => {
 };
 module.exports = {
   userJoiValidate,
+  userSubscriptionJoi,
 };
