@@ -4,7 +4,7 @@ const Jimp = require("jimp");
 const fs = require("fs/promises");
 const gravatar = require("gravatar");
 const User = require("../models/usersModel");
-
+require("dotenv").config();
 const secret = process.env.SECRET;
 
 // РЕЄСТРАЦІЯ
@@ -35,7 +35,7 @@ const signUp = async (req, res, next) => {
       data: {
         name: {
           email: email,
-          subscription: "starter",
+          subscription: newUser.subscription,
         },
       },
     });
@@ -65,15 +65,17 @@ const logIn = async (req, res, next) => {
     };
 
     const token = jwt.sign(payload, secret);
-
+    user.token = token;
+    await user.save();
     res.json({
       status: "success",
       code: 200,
       data: {
         token,
         user: {
-          email: email,
-          subscription: "starter",
+          email: user.email,
+          subscription: user.subscription,
+          avatarURL: user.avatarURL,
         },
       },
     });

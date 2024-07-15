@@ -2,8 +2,8 @@ const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
-const passport = require("passport");
-const { Strategy } = require("./config/config-passport");
+require("passport");
+require("./config/config-passport");
 const contactsRouter = require("./routes/api/contacts");
 const usersRouter = require("./routes/api/users");
 
