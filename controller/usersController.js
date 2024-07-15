@@ -126,33 +126,18 @@ const updateAvatar = async (req, res, next) => {
 
   try {
     const newAvatarName = `${userId}_${originalname}`;
-    const resultUpload = path.join(uploadDirname, newAvatarName);
+    const outputPath = path.join(uploadDirname, newAvatarName);
 
-    // зменшення розміру картинки до 250*250
-    const resizeImage = async (inputPath, outputPath) => {
-      try {
-        const image = await Jimp.read(inputPath);
-        await image.resize(250, 250).writeAsync(outputPath);
-        // якщо ок, то буде лінк до аватарки
-        res.status(200).json({
-          avatarURL: `/avatars/${newAvatarName}`,
-        });
-      } catch (error) {
-        console.log(error);
-        next();
-      }
-    };
+    // Зменшення розміру картинки до 250x250
+    const image = await Jimp.read(tmpUpload);
+    await image.resize(250, 250).writeAsync(outputPath);
 
-    await resizeImage(tmpUpload, resultUpload);
-    // // const avatar = await Jimp.read(tmpUpload);
-    // // await avatar.resize(250, 250).writeAsync(resultUpload);
-
-    const avatarURL = `/avatars/${newAvatarName}`;
-    await User.findByIdAndUpdate(userId, { avatarURL });
-
-    res.json({ avatarURL });
+    // Якщо успішно, повернемо URL аватарки
+    res.status(200).json({
+      avatarURL: `/avatars/${newAvatarName}`,
+    });
   } catch (error) {
-    await fs.unlink(tmpUpload);
+    console.log(error);
     next(error);
   }
 };
