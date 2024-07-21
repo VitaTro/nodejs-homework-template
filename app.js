@@ -11,9 +11,6 @@ const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
-// const uploadDir = path.join(process.cwd(), "uploads");
-// const storeImage = path.join(process.cwd(), "images");
-
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
