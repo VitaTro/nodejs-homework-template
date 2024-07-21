@@ -34,14 +34,14 @@ router.patch(
 // верифікація кориcтувача
 // перша верифікація з токеном
 router.get(
-  " /verify/:verificationToken",
+  " auth/verify/:verificationToken",
 
   verifyController.userVerification
 );
 
 // наступні верифікації з мейлом
 router.post(
-  "/verify",
+  "users/verify",
   emailJoiValidate,
   verifyController.verificationEmailResend
 );

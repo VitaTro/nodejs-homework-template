@@ -6,6 +6,7 @@ const gravatar = require("gravatar");
 const User = require("../models/usersModel");
 require("dotenv").config();
 const secret = process.env.SECRET;
+const { v4: uuid4 } = require("uuid");
 
 // РЕЄСТРАЦІЯ
 
@@ -21,9 +22,18 @@ const signUp = async (req, res, next) => {
       data: "Conflict",
     });
   }
+
+  // додаю нове правило при реєстрації (обов'язкове проходження верифікації)
+  const verificationToken = uuid4();
+
   // якщо ні, то реєструємо 201
   try {
-    const newUser = new User({ username, email });
+    const newUser = new User({
+      username,
+      email,
+      verificationToken,
+      verify: false,
+    });
     newUser.setPassword(password);
     // якщо новий користувач, додаємо йому можливість одразу уставити аватар
     newUser.avatarURL = gravatar.url(email);
@@ -40,6 +50,12 @@ const signUp = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: "Failed to send verification email",
+    });
     next(error);
   }
 };
@@ -60,18 +76,19 @@ const logIn = async (req, res, next) => {
       });
     }
     const payload = {
-      id: user.id,
-      username: user.username,
+      id: user._id,
+      // username: user.username,
+      email: user.email,
     };
 
     const token = jwt.sign(payload, secret);
     user.token = token;
     await user.save();
     res.json({
+      token,
       status: "success",
       code: 200,
       data: {
-        token,
         user: {
           email: user.email,
           subscription: user.subscription,
