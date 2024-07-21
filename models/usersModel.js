@@ -1,31 +1,43 @@
+const { required } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const users = new Schema({
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: true,
-  },
-  subscription: {
-    type: String,
-    enum: ["starter", "pro", "business"],
-    default: "starter",
-  },
-  token: {
-    type: String,
-    required: true,
-    ref: "User",
-  },
-  avatarURL: {
-    type: String,
-    required: true,
-  },
-});
+const users = new Schema(
+  {
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+    },
+    subscription: {
+      type: String,
+      enum: ["starter", "pro", "business"],
+      default: "starter",
+    },
+    token: {
+      type: String,
+      required: true,
+      ref: "User",
+    },
+    avatarURL: {
+      type: String,
+      required: true,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, "Verify token is required"],
+    },
+  }
+  // { versionKey: false, timestamps: true }
+);
 
 // "user" - це перший аргумент методу і вказує на назву моделі. В даному випадку модель називається “user”.
 // users - це другий аргумент методу і вказує на схему, за якою буде створена модель. Схема users визначена раніше в коді.

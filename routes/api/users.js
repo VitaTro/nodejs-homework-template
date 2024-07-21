@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../../controller/usersController");
+const verificationController = require("../../controller/verificationController");
 const authMiddleware = require("../../validate/userMiddleware");
 const {
   userJoiValidate,
   userSubscriptionJoi,
 } = require("../../validate/userJoi");
 const upload = require("../../validate/uploadMulter");
+const { emailJoiValidate } = require("../../validate/emailJoi");
 
 // authMiddleware використовується для автентифікації.
 // userJoiValidate використовується для валідації даних користувача.
@@ -27,6 +29,19 @@ router.patch(
   authMiddleware,
   upload.single("avatar"),
   userController.updateAvatar
+);
+
+// верифікація кориcтувача
+// перша верифікація з токеном
+router.get(
+  " /verify/:verificationToken",
+  verificationController.userVerification
+);
+// наступні верифікації з мейлом
+router.post(
+  "/verify",
+  emailJoiValidate,
+  verificationController.verificationEmailResend
 );
 
 module.exports = router;
