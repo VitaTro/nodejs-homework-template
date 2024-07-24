@@ -25,15 +25,15 @@ const userSubscriptionJoi = (req, res, next) => {
 // перевірка валідації даних, які прийшли з HTTP-запиту
 // якщо не відповідає дійсності, то помилка, а якщо так, то йдемо далі
 const userJoiValidate = (req, res, next) => {
-  const result = Joi.validate(req.body, userJoi);
-  if (result.error) {
-    const errorMessage = result.error.details
-      .map((detail) => detail.message)
-      .join(", ");
-    res.status(400).json({ message: errorMessage });
-  } else {
-    next();
+  const { error } = userJoi.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      status: "error",
+      code: 400,
+      message: error.details[0].message,
+    });
   }
+  next();
 };
 module.exports = {
   userJoiValidate,

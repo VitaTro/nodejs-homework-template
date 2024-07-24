@@ -14,6 +14,12 @@ const verifyController = require("../../controller/verificationController");
 // userJoiValidate використовується для валідації даних користувача.
 router.post("/signup", userJoiValidate, userController.signUp);
 router.post("/login", userJoiValidate, authMiddleware, userController.logIn);
+router.patch(
+  "/",
+  authMiddleware,
+  userSubscriptionJoi,
+  userController.updateSubscription
+);
 router.get("/logout", authMiddleware, userController.logOut);
 router.get("/current", authMiddleware, userController.current);
 
@@ -34,7 +40,7 @@ router.patch(
 // верифікація кориcтувача
 // перша верифікація з токеном
 router.get(
-  " auth/verify/:verificationToken",
+  "auth/verify/:verificationToken",
 
   verifyController.userVerification
 );

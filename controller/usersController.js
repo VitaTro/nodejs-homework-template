@@ -7,11 +7,11 @@ const User = require("../models/usersModel");
 require("dotenv").config();
 const secret = process.env.SECRET;
 const { v4: uuid4 } = require("uuid");
-
+const sendVerificationEmail = require("../email");
 // РЕЄСТРАЦІЯ
 
 const signUp = async (req, res, next) => {
-  const { username, email, password } = res.body;
+  const { email, password } = req.body;
   const user = await User.findOne({ email }).lean();
   // якщо такий мейл є вже зареєстрований, то помилка 409
   if (user) {
@@ -29,7 +29,6 @@ const signUp = async (req, res, next) => {
   // якщо ні, то реєструємо 201
   try {
     const newUser = new User({
-      username,
       email,
       verificationToken,
       verify: false,
@@ -38,6 +37,11 @@ const signUp = async (req, res, next) => {
     // якщо новий користувач, додаємо йому можливість одразу уставити аватар
     newUser.avatarURL = gravatar.url(email);
     await newUser.save();
+
+    // Збереження токена у файл
+    fs.writeFileSync("verificationToken.txt", verificationToken);
+    // відправка електронного листа
+    await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
       status: "success",
@@ -75,9 +79,18 @@ const logIn = async (req, res, next) => {
         data: "Bad request",
       });
     }
+
+    // додаю перевірку, чи користувач пройшов верифікацію мейла, чи ні
+    if (!user.verify) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Email not verified",
+      });
+    }
+
     const payload = {
       id: user._id,
-      // username: user.username,
       email: user.email,
     };
 
@@ -178,7 +191,7 @@ const updateSubscription = async (req, res, next) => {
     }
 
     res.json({
-      status: "sucsess",
+      status: "success",
       code: 200,
       data: {
         email: userId.email,
