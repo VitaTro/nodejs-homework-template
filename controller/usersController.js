@@ -24,13 +24,13 @@ const signUp = async (req, res, next) => {
   }
 
   // додаю нове правило при реєстрації (обов'язкове проходження верифікації)
-  const verificationToken = uuid4();
+  const token = uuid4();
 
   // якщо ні, то реєструємо 201
   try {
     const newUser = new User({
       email,
-      verificationToken,
+      token,
       verify: false,
     });
     newUser.setPassword(password);
@@ -38,10 +38,8 @@ const signUp = async (req, res, next) => {
     newUser.avatarURL = gravatar.url(email);
     await newUser.save();
 
-    // Збереження токена у файл
-    fs.writeFileSync("verificationToken.txt", verificationToken);
     // відправка електронного листа
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(email, token);
 
     res.status(201).json({
       status: "success",
