@@ -36,11 +36,5 @@ const sendVerificationEmail = async (email, verificationToken) => {
     throw error;
   }
 };
-// const testEmail = async () => {
-//   const email = "lija.trojan8@gmail.com"; // Змініть на вашу тестову електронну адресу
-//   const verificationToken = "1234567890"; // Змініть на ваш тестовий токен
-//   await sendVerificationEmail(email, verificationToken);
-// };
 
-// testEmail();
 module.exports = sendVerificationEmail;

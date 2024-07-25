@@ -8,6 +8,7 @@ require("dotenv").config();
 const secret = process.env.SECRET;
 const { v4: uuid4 } = require("uuid");
 const sendVerificationEmail = require("../email");
+
 // РЕЄСТРАЦІЯ
 
 const signUp = async (req, res, next) => {
@@ -24,13 +25,13 @@ const signUp = async (req, res, next) => {
   }
 
   // додаю нове правило при реєстрації (обов'язкове проходження верифікації)
-  const token = uuid4();
+  const verificationToken = uuid4();
 
   // якщо ні, то реєструємо 201
   try {
     const newUser = new User({
       email,
-      token,
+      verificationToken,
       verify: false,
     });
     newUser.setPassword(password);
@@ -39,7 +40,7 @@ const signUp = async (req, res, next) => {
     await newUser.save();
 
     // відправка електронного листа
-    await sendVerificationEmail(email, token);
+    await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
       status: "success",
@@ -58,7 +59,6 @@ const signUp = async (req, res, next) => {
       code: 500,
       message: "Failed to send verification email",
     });
-    next(error);
   }
 };
 
