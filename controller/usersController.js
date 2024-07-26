@@ -6,11 +6,13 @@ const gravatar = require("gravatar");
 const User = require("../models/usersModel");
 require("dotenv").config();
 const secret = process.env.SECRET;
+const { v4: uuid4 } = require("uuid");
+const sendVerificationEmail = require("../email");
 
 // РЕЄСТРАЦІЯ
 
 const signUp = async (req, res, next) => {
-  const { username, email, password } = res.body;
+  const { email, password } = req.body;
   const user = await User.findOne({ email }).lean();
   // якщо такий мейл є вже зареєстрований, то помилка 409
   if (user) {
@@ -21,13 +23,24 @@ const signUp = async (req, res, next) => {
       data: "Conflict",
     });
   }
+
+  // додаю нове правило при реєстрації (обов'язкове проходження верифікації)
+  const verificationToken = uuid4();
+
   // якщо ні, то реєструємо 201
   try {
-    const newUser = new User({ username, email });
+    const newUser = new User({
+      email,
+      verificationToken,
+      verify: false,
+    });
     newUser.setPassword(password);
     // якщо новий користувач, додаємо йому можливість одразу уставити аватар
     newUser.avatarURL = gravatar.url(email);
     await newUser.save();
+
+    // відправка електронного листа
+    await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
       status: "success",
@@ -40,7 +53,12 @@ const signUp = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      message: "Failed to send verification email",
+    });
   }
 };
 
@@ -59,19 +77,29 @@ const logIn = async (req, res, next) => {
         data: "Bad request",
       });
     }
+
+    // додаю перевірку, чи користувач пройшов верифікацію мейла, чи ні
+    if (!user.verify) {
+      return res.status(403).json({
+        status: "error",
+        code: 403,
+        message: "Email not verified",
+      });
+    }
+
     const payload = {
-      id: user.id,
-      username: user.username,
+      id: user._id,
+      email: user.email,
     };
 
     const token = jwt.sign(payload, secret);
     user.token = token;
     await user.save();
     res.json({
+      token,
       status: "success",
       code: 200,
       data: {
-        token,
         user: {
           email: user.email,
           subscription: user.subscription,
@@ -161,7 +189,7 @@ const updateSubscription = async (req, res, next) => {
     }
 
     res.json({
-      status: "sucsess",
+      status: "success",
       code: 200,
       data: {
         email: userId.email,
