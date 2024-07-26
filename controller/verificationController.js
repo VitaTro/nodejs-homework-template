@@ -58,15 +58,6 @@ const verificationEmailResend = async (req, res, next) => {
       });
     }
 
-    // якщо юзер не пройшов валідацію
-    if (!user.verify) {
-      return res.status(403).json({
-        status: "error",
-        code: 403,
-        message: "Email not verified",
-      });
-    }
-
     const verificationToken = user.verificationToken;
     await sendVerificationEmail(email, verificationToken);
 
